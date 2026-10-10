@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Parapapa · Tarjeta de puntos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Jost:wght@300;400;500;600&display=swap">
+<style>
+  :root{ --brown:#1E5E36; --brown-2:#2E8550; --beige:#F4E7C6; --cream:#FBF7EC; --white:#fff; --line:#E3DCC2; --soft:#6B7A69; --ok:#3F7D5C; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--cream); color:var(--brown); font-family:'Jost',system-ui,sans-serif;}
+  .app{max-width:440px; margin:0 auto; padding:18px 16px 40px;}
+  .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .demo{font-size:10px; letter-spacing:.18em; text-transform:uppercase; border:1px solid var(--brown-2); padding:3px 8px; border-radius:99px; color:var(--brown-2);}
+  .tabs{display:flex; background:var(--beige); border-radius:99px; padding:4px; gap:4px;}
+  .tabs button{border:none; background:transparent; font:inherit; font-weight:500; padding:8px 14px; border-radius:99px; color:var(--brown); cursor:pointer;}
+  .tabs button.on{background:var(--brown); color:var(--white);}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:26px; margin:6px 0 2px;}
+  .muted{color:var(--soft); font-size:14px; margin:0;}
+
+  /* tarjeta tipo wallet */
+  .card{margin:18px 0; background:var(--brown); color:var(--beige); border-radius:22px; padding:20px; box-shadow:0 14px 30px rgba(30,94,54,.25);}
+  .card-head{display:flex; justify-content:space-between; align-items:flex-start;}
+  .card h2{font-family:'Fraunces',serif; font-weight:500; margin:0; font-size:22px; color:var(--white);}
+  .card small{font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.8;}
+  .stamps{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:18px 0 14px;}
+  .stamp{aspect-ratio:1; border-radius:50%; border:1.5px dashed rgba(232,220,200,.55); display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .stamp.on{background:var(--beige); border:none; color:var(--brown); animation:pop .4s ease;}
+  @keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+  .progress{font-size:14px; color:var(--white);}
+  .card-foot{display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px; opacity:.85;}
+  .qr{width:54px; height:54px; background:var(--white); border-radius:8px; display:grid; grid-template-columns:repeat(7,1fr); padding:5px; gap:1px;}
+  .qr i{background:var(--brown);} .qr i.w{background:transparent;}
+
+  .wallet{display:flex; gap:8px;}
+  .wallet button{flex:1; border:none; border-radius:12px; padding:11px; font:inherit; font-weight:500; cursor:pointer; background:var(--brown); color:#fff;}
+  .wallet button.g{background:var(--white); color:#111; border:1px solid var(--line);}
+
+  .section{margin-top:22px;}
+  .section h3{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 10px;}
+  .reward{display:flex; justify-content:space-between; align-items:center; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:8px;}
+  .reward b{font-weight:500;} .reward span{font-size:13px; color:var(--soft);}
+  .pill{font-size:12px; padding:4px 10px; border-radius:99px; background:var(--beige);}
+  .pill.ok{background:#DCEDE3; color:var(--ok);}
+
+  .notif{display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:16px; padding:12px; margin-top:10px; box-shadow:0 8px 20px rgba(30,94,54,.10);}
+  .notif .ic{width:34px; height:34px; border-radius:9px; background:var(--brown); color:var(--beige); display:flex; align-items:center; justify-content:center; flex:none;}
+  .notif p{margin:2px 0 0; font-size:13.5px;} .notif strong{font-size:13px;}
+
+  /* negocio */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0;}
+  .stat{background:var(--white); border:1px solid var(--line); border-radius:14px; padding:10px;}
+  .stat b{display:block; font-family:'Fraunces',serif; font-size:22px; font-weight:600;}
+  .stat span{font-size:11px; color:var(--soft); text-transform:uppercase; letter-spacing:.06em;}
+  .box{background:var(--white); border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:12px;}
+  .row{display:flex; gap:8px;}
+  input, textarea, select{font:inherit; color:var(--brown); border:1px solid var(--line); background:var(--cream); border-radius:10px; padding:10px 12px; width:100%;}
+  .btn{border:none; background:var(--brown); color:var(--white); font:inherit; font-weight:500; border-radius:10px; padding:10px 14px; cursor:pointer; white-space:nowrap;}
+  .btn.light{background:var(--beige); color:var(--brown);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  td, th{padding:8px 4px; border-bottom:1px solid var(--line); text-align:left;}
+  th{font-weight:500; color:var(--soft); font-size:11px; text-transform:uppercase; letter-spacing:.06em;}
+  .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--brown); color:var(--white); padding:11px 16px; border-radius:12px; font-size:14px; opacity:0; transition:opacity .25s; pointer-events:none; max-width:90vw;}
+  .toast.show{opacity:1;}
+
+  /* QR del cliente y escáner */
+  .showqr{display:block; width:100%; margin-top:10px; border:1.5px solid var(--brown); background:transparent; color:var(--brown); font:inherit; font-weight:600; border-radius:12px; padding:13px; cursor:pointer;}
+  .qr{cursor:pointer;}
+  .scanbtn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; border:none; background:var(--brown); color:var(--white); font:inherit; font-size:17px; font-weight:600; border-radius:16px; padding:18px; cursor:pointer; box-shadow:0 10px 24px rgba(30,94,54,.22);}
+  .scanbtn svg{width:26px; height:26px;}
+  .ov{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:18px;}
+  .ov.light{background:rgba(247,241,232,.97);}
+  .ov.dark{background:#0d0907;}
+  .qrbox{width:100%; max-width:360px; text-align:center;}
+  .qrbox canvas{width:250px; height:250px; max-width:100%; background:#fff; padding:14px; border-radius:20px; box-shadow:0 14px 30px rgba(30,94,54,.18); box-sizing:content-box;}
+  .code{font-family:'Fraunces',serif; font-size:26px; letter-spacing:.12em; margin:14px 0 4px;}
+  .timer{height:5px; background:var(--beige); border-radius:99px; overflow:hidden; margin:10px auto 6px; max-width:250px;}
+  .timer i{display:block; height:100%; background:var(--brown); width:100%;}
+  .close{position:absolute; top:calc(14px + env(safe-area-inset-top,0px)); right:14px; width:40px; height:40px; border-radius:50%; border:none; background:var(--beige); color:var(--brown); font-size:18px; cursor:pointer;}
+  .ov.dark .close{background:rgba(255,255,255,.14); color:#fff;}
+  .finder{position:relative; width:260px; height:260px; max-width:78vw; max-height:78vw; margin:0 auto;}
+  .finder canvas{position:absolute; inset:30px; width:calc(100% - 60px); height:calc(100% - 60px); opacity:.85; filter:blur(.4px); background:#fff; border-radius:8px;}
+  .finder .c{position:absolute; width:42px; height:42px; border:4px solid var(--beige);}
+  .finder .c1{top:0; left:0; border-right:none; border-bottom:none; border-radius:14px 0 0 0;}
+  .finder .c2{top:0; right:0; border-left:none; border-bottom:none; border-radius:0 14px 0 0;}
+  .finder .c3{bottom:0; left:0; border-right:none; border-top:none; border-radius:0 0 0 14px;}
+  .finder .c4{bottom:0; right:0; border-left:none; border-top:none; border-radius:0 0 14px 0;}
+  .finder .line{position:absolute; left:12px; right:12px; height:2px; background:#7FD1A0; box-shadow:0 0 12px #7FD1A0; animation:scan 1.4s ease-in-out infinite alternate;}
+  .finder.ok .c{border-color:#7FD1A0;}
+  .finder.ok .line{display:none;}
+  @keyframes scan{from{top:14px} to{top:calc(100% - 16px)}}
+  .scantxt{color:#E8DCC8; text-align:center; margin-top:22px; font-size:15px;}
+  .res{width:100%; max-width:400px; background:var(--cream); border-radius:22px; padding:20px;}
+  .res-head{display:flex; align-items:center; gap:12px;}
+  .avatar{width:48px; height:48px; border-radius:50%; background:var(--brown); color:var(--beige); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-size:22px; flex:none;}
+  .mini{display:grid; grid-template-columns:repeat(10,1fr); gap:5px; margin:16px 0 8px;}
+  .mini i{aspect-ratio:1; border-radius:50%; border:1.5px dashed var(--line);}
+  .mini i.on{background:var(--brown); border:none;}
+  .free{background:#DCEDE3; color:var(--ok); border-radius:12px; padding:10px 12px; font-weight:500; margin:10px 0 0;}
+  .acts{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px;}
+  .acts .btn{padding:14px; font-size:15px;}
+  .acts .wide{grid-column:1/-1;}
+  .btn.okb{background:var(--ok);}
+  .btn:disabled{opacity:.35; cursor:default;}
+  @media (prefers-reduced-motion:reduce){ .finder .line{animation:none; top:50%;} }
+  [hidden]{display:none!important;}
+  .stamp.on{animation:none;}
+  .stamp.on.new{animation:pop .5s ease;}
+  .qr{width:54px; height:54px; padding:4px; display:block;}
+  .live{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ok); margin:-6px 0 8px;}
+  .push{position:fixed; z-index:70; top:calc(10px + env(safe-area-inset-top,0px)); left:50%; width:calc(100% - 24px); max-width:420px; transform:translate(-50%,-150%); transition:transform .35s ease; display:flex; gap:10px; align-items:flex-start; background:var(--white); border:1px solid var(--line); border-radius:18px; padding:12px 14px; box-shadow:0 16px 36px rgba(30,94,54,.22); cursor:pointer;}
+  .push.show{transform:translate(-50%,0);}
+  .push .ic{width:38px; height:38px; border-radius:10px; background:var(--brown); color:var(--beige); display:flex; align-items:center; justify-content:center; flex:none; font-size:18px;}
+  .push small{color:var(--soft); font-size:12px;} .push p{margin:2px 0 0; font-size:14.5px;}
+  .resetbtn{display:block; margin:18px auto 0; background:none; border:none; color:var(--soft); font:inherit; font-size:13px; text-decoration:underline; cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <span class="demo" id="modeTag">Demo · Parapapa</span>
+    <div class="tabs" id="tabs"><button id="tCli" class="on">Cliente</button><button id="tNeg">Negocio</button></div>
+  </div>
+  <p class="live" id="live" hidden>● Conectado en directo</p>
+
+  <!-- ===== CLIENTE ===== -->
+  <section id="vCli">
+    <h1>Hola, Laura ☕</h1>
+    <p class="muted">Tu tarjeta de Parapapa (Vilassar de Mar), siempre en el móvil.</p>
+
+    <div class="card">
+      <div class="card-head">
+        <div><small>Parapapa</small><h2>Tarjeta de cafés</h2></div>
+        <small id="ptsTxt">0 sellos</small>
+      </div>
+      <div class="stamps" id="stamps"></div>
+      <div class="progress" id="progress"></div>
+      <div class="card-foot">
+        <span>Enseña tu código al pagar</span>
+        <canvas class="qr" id="qrSmall" width="108" height="108" aria-label="Abrir mi código"></canvas>
+      </div>
+    </div>
+    <button class="showqr" id="showQr">Mostrar mi código para sumar sellos</button>
+
+    <div class="wallet" style="margin-top:10px">
+      <button id="wApple">📲 Añadir a la pantalla de inicio</button>
+    </div>
+
+    <div class="section">
+      <h3>Tus premios</h3>
+      <div id="rewards"></div>
+    </div>
+
+    <div class="section">
+      <h3>Últimos avisos</h3>
+      <div id="notifs"></div>
+    </div>
+  </section>
+
+  <!-- ===== NEGOCIO ===== -->
+  <section id="vNeg" hidden>
+    <h1>Parapapa · Panel</h1>
+    <p class="muted">Escanea, suma sellos, mira quién vuelve y avisa a tus clientes.</p>
+
+    <button class="scanbtn" id="scan" style="margin-top:16px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10"/></svg>
+      Escanear cliente
+    </button>
+
+    <div class="stats">
+      <div class="stat"><b id="sCli">0</b><span>Clientes</span></div>
+      <div class="stat"><b id="sVis">0</b><span>Visitas mes</span></div>
+      <div class="stat"><b id="sRep">0%</b><span>Repiten</span></div>
+    </div>
+
+    <div class="box">
+      <h3 style="margin:0 0 10px;font-family:Fraunces,serif;font-weight:500">Enviar aviso</h3>
+      <select id="seg" style="margin-bottom:8px">
+        <option value="todos">A todos los clientes</option>
+        <option value="dormidos">A los que no vienen hace 30 días</option>
+        <option value="top">A los 10 mejores clientes</option>
+        <option value="cerca">A los que pasen cerca del local</option>
+      </select>
+      <textarea id="msg" rows="2">🥐 Domingo de churros: doble sello con chocolate hasta las 12:00.</textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn" id="send">Enviar aviso</button></div>
+    </div>
+
+    <div class="box">
+      <h3 style="margin:0 0 10px;font-family:Fraunces,serif;font-weight:500">Sin móvil: sumar a mano</h3>
+      <div class="row">
+        <select id="who"></select>
+        <button class="btn" id="addStamp">+1 sello</button>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3 style="margin:0 0 6px;font-family:Fraunces,serif;font-weight:500">Clientes</h3>
+      <table><thead><tr><th>Cliente</th><th>Sellos</th><th>Visitas</th><th>Última</th></tr></thead><tbody id="tbl"></tbody></table>
+      <p class="muted" style="margin-top:8px;font-size:12px">Datos de ejemplo.</p>
+    </div>
+    <button class="resetbtn" id="reset">Reiniciar la demo (Laura vuelve a 6 sellos)</button>
+  </section>
+</div>
+
+<!-- QR del cliente -->
+<div class="ov light" id="qrOv" hidden>
+  <button class="close" id="qrX" aria-label="Cerrar">✕</button>
+  <div class="qrbox">
+    <small style="letter-spacing:.16em;text-transform:uppercase;color:var(--soft)">Parapapa · Laura</small>
+    <h1 style="margin:4px 0 16px">Tu código</h1>
+    <canvas id="qrBig" width="500" height="500"></canvas>
+    <div class="code" id="code">PP-0000</div>
+    <div class="timer"><i id="timerBar"></i></div>
+    <p class="muted">Enséñalo en la barra. Cambia cada 30 s para que nadie lo copie.</p>
+  </div>
+</div>
+
+<!-- Escáner del negocio -->
+<div class="ov dark" id="scanOv" hidden>
+  <button class="close" id="scanX" aria-label="Cerrar">✕</button>
+  <div style="width:100%">
+    <div class="finder" id="finder"><canvas id="scanC" width="400" height="400"></canvas><i class="c c1"></i><i class="c c2"></i><i class="c c3"></i><i class="c c4"></i><i class="line"></i></div>
+    <p class="scantxt" id="scanTxt">Apunta al código del cliente…</p>
+  </div>
+</div>
+
+<!-- Resultado del escaneo -->
+<div class="ov light" id="resOv" hidden><div class="res" id="res"></div></div>
+
+<div class="push" id="push" role="status"><div class="ic">☕</div><div><small>Parapapa · ahora</small><p id="pushTxt"></p></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(async function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const toast = t => { const el=$("toast"); el.textContent=t; el.classList.add("show"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2600); };
+
+  // Laura es la clienta de la demo: su tarjeta se comparte entre el móvil del cliente y el del negocio.
+  const START = { stamps:6, free:0, visits:14, last:"Hoy", avisos:[{ id:1, m:"Te faltan 4 cafés para el siguiente gratis 🎁" }] };
+  let me = clone(START);
+  const others = [
+    { name:"Marc", stamps:9, free:0, visits:21, last:"Ayer" },
+    { name:"Núria", stamps:3, free:0, visits:7, last:"Hace 3 días" },
+    { name:"Jordi", stamps:1, free:0, visits:2, last:"Hace 34 días" },
+    { name:"Anna", stamps:8, free:0, visits:18, last:"Hoy" },
+    { name:"Pol", stamps:4, free:0, visits:9, last:"Hace 12 días" },
+  ];
+  const REWARDS = [ { at:25, txt:"Churros con chocolate" }, { at:50, txt:"Porción de pastel de Guinness + chai latte" } ];
+
+  // ===== vista: #cliente, #negocio o las dos con pestañas =====
+  let mode = "";
+  function show(v){
+    $("tCli").classList.toggle("on", v==="cli"); $("tNeg").classList.toggle("on", v==="neg");
+    $("vCli").hidden = v!=="cli"; $("vNeg").hidden = v!=="neg";
+  }
+  function applyMode(){
+    mode = (location.hash||"").slice(1);
+    const only = mode==="cliente" || mode==="negocio";
+    $("tabs").hidden = only;
+    $("modeTag").textContent = mode==="cliente" ? "Demo · cliente" : mode==="negocio" ? "Demo · negocio" : "Demo · Parapapa";
+    show(mode==="negocio" ? "neg" : "cli");
+  }
+  $("tCli").onclick = ()=>show("cli");
+  $("tNeg").onclick = ()=>show("neg");
+  window.addEventListener("hashchange", applyMode);
+
+  // ===== código que cambia cada 30 s (el mismo en los dos móviles) =====
+  const WIN = 30000;
+  const codeAt = t => { const w=Math.floor(t/WIN); const h=Math.imul(w ^ 0x5bd1e995, 2654435761)>>>0; return "PP-" + (1000 + h % 9000); };
+  function drawQR(cv, seed){
+    const N=25, ctx=cv.getContext("2d"), s=cv.width/N;
+    let x = 2166136261; for (const ch of seed) x = Math.imul(x ^ ch.charCodeAt(0), 16777619) >>> 0;
+    const rnd = () => { x ^= x<<13; x>>>=0; x ^= x>>>17; x ^= x<<5; x>>>=0; return x/4294967296; };
+    ctx.fillStyle="#fff"; ctx.fillRect(0,0,cv.width,cv.height); ctx.fillStyle="#123D22";
+    const finder = (cx,cy) => { ctx.fillRect(cx*s,cy*s,7*s,7*s); ctx.fillStyle="#fff"; ctx.fillRect((cx+1)*s,(cy+1)*s,5*s,5*s); ctx.fillStyle="#123D22"; ctx.fillRect((cx+2)*s,(cy+2)*s,3*s,3*s); };
+    const inF = (i,j) => (i<8&&j<8)||(i>N-9&&j<8)||(i<8&&j>N-9);
+    for (let i=0;i<N;i++) for (let j=0;j<N;j++) if (!inF(i,j) && rnd()<.5) ctx.fillRect(i*s,j*s,Math.ceil(s),Math.ceil(s));
+    finder(0,0); finder(N-7,0); finder(0,N-7);
+  }
+
+  // ===== cliente =====
+  let shown = -1;
+  function renderCli(){
+    const inCard = me.stamps % 10, full = inCard===0 && me.free>0, filled = full ? 10 : inCard;
+    $("stamps").innerHTML = Array.from({length:10},(_,i)=>`<div class="stamp ${i<filled?'on':''} ${i<filled && shown>=0 && i>=shown?'new':''}">${i<filled?'☕':''}</div>`).join("");
+    shown = filled;
+    $("progress").textContent = me.free>0 ? `¡Tienes ${me.free} café${me.free>1?"s":""} gratis! Pídelo en la barra 🎉` : `Te faltan ${10-inCard} cafés para el siguiente gratis`;
+    $("ptsTxt").textContent = `${me.stamps} sellos`;
+    $("rewards").innerHTML =
+      `<div class="reward"><div><b>Café gratis</b><br><span>Cada 10 sellos</span></div>${me.free>0?`<span class="pill ok">Disponible${me.free>1?" ×"+me.free:""}</span>`:`<span class="pill">Faltan ${10-inCard}</span>`}</div>` +
+      REWARDS.map(r=>`<div class="reward"><div><b>${r.txt}</b><br><span>${r.at} sellos</span></div>${me.stamps>=r.at?'<span class="pill ok">Disponible</span>':`<span class="pill">Faltan ${r.at-me.stamps}</span>`}</div>`).join("");
+    const last = me.avisos.slice(-3).reverse();
+    $("notifs").innerHTML = last.map(()=>`<div class="notif"><div class="ic">☕</div><div><strong>Parapapa</strong><p></p></div></div>`).join("");
+    [...$("notifs").querySelectorAll("p")].forEach((p,i)=>{ p.textContent = last[i].m; });
+    drawQR($("qrSmall"), codeAt(Date.now()));
+  }
+
+  // ===== negocio =====
+  const list = () => [{ name:"Laura", ...me }, ...others];
+  function renderNeg(){
+    const L = list();
+    $("sCli").textContent = 128;
+    $("sVis").textContent = 412 + L.reduce((a,c)=>a+c.visits,0);
+    $("sRep").textContent = "64%";
+    $("tbl").innerHTML = L.map(c=>`<tr><td></td><td>${c.stamps % 10}/10${c.free?" · 🎁":""}</td><td>${c.visits}</td><td>${c.last}</td></tr>`).join("");
+    [...$("tbl").querySelectorAll("tr")].forEach((tr,i)=>{ tr.firstChild.textContent = L[i].name; });
+    const sel=$("who"), v=sel.value;
+    sel.innerHTML = L.map((c,i)=>`<option value="${i}"></option>`).join("");
+    [...sel.options].forEach((o,i)=>{ o.textContent = L[i].name; });
+    if (v) sel.value = v;
+  }
+  function render(){ renderCli(); renderNeg(); }
+
+  // ===== guardar (compartido entre los dos móviles) =====
+  let ref = null, lastAviso = 0, firstSnap = true;
+  async function save(){
+    if (!ref) return;
+    try { await ref.set(clone(me)); }
+    catch(e){ toast(e && e.code==="invalid_argument" ? "Este enlace solo puede mirar: los sellos se suman desde el del negocio." : "No se ha podido guardar. Prueba otra vez."); }
+  }
+  function aviso(m){ me.avisos.push({ id:Date.now(), m }); me.avisos = me.avisos.slice(-8); }
+  function addStamps(c, n){ for (let i=0;i<n;i++){ c.stamps++; if (c.stamps%10===0) c.free++; } c.visits++; c.last="Hoy"; }
+
+  // ===== aviso tipo notificación del móvil =====
+  function pushNote(m){
+    if (mode==="negocio" || $("vCli").hidden) return;
+    $("pushTxt").textContent = m; const p=$("push"); p.classList.add("show");
+    if (navigator.vibrate) navigator.vibrate([60,40,60]);
+    clearTimeout(p._t); p._t=setTimeout(()=>p.classList.remove("show"),4200);
+  }
+  $("push").onclick = ()=>$("push").classList.remove("show");
+
+  // ===== QR a pantalla completa =====
+  let qrTimer = null, qrCode = "";
+  function openQr(){
+    $("qrOv").hidden=false; qrCode="";
+    const tick=()=>{ const now=Date.now(), c=codeAt(now);
+      if (c!==qrCode){ qrCode=c; drawQR($("qrBig"), c); $("code").textContent=c; drawQR($("qrSmall"), c); }
+      $("timerBar").style.width = ((WIN - now%WIN)/WIN*100) + "%"; };
+    tick(); qrTimer=setInterval(tick,250);
+  }
+  function closeQr(){ $("qrOv").hidden=true; clearInterval(qrTimer); }
+  $("showQr").onclick = openQr; $("qrSmall").onclick = openQr; $("qrX").onclick = closeQr;
+
+  // ===== escanear =====
+  let scanT = [];
+  function scan(){
+    const code = codeAt(Date.now());
+    $("scanOv").hidden=false; $("finder").classList.remove("ok"); $("scanTxt").textContent="Apunta al código del cliente…";
+    drawQR($("scanC"), code);
+    scanT.forEach(clearTimeout);
+    scanT = [
+      setTimeout(()=>{ $("finder").classList.add("ok"); $("scanTxt").textContent=`✓ Código ${code} leído`; if (navigator.vibrate) navigator.vibrate(80); }, 1700),
+      setTimeout(()=>{ $("scanOv").hidden=true; openRes(code); }, 2400)
+    ];
+  }
+  function closeScan(){ scanT.forEach(clearTimeout); $("scanOv").hidden=true; }
+  $("scan").onclick = scan; $("scanX").onclick = closeScan;
+
+  let resCode = "";
+  function openRes(code){ resCode=code; $("resOv").hidden=false; renderRes(); }
+  function renderRes(){
+    if ($("resOv").hidden) return;
+    const inCard = me.stamps % 10;
+    $("res").innerHTML = `
+      <div class="res-head"><div class="avatar">L</div><div><b style="font-size:18px">Laura</b><br><span class="muted" style="font-size:13px">Código ${resCode} · verificado ✓</span></div></div>
+      <div class="mini">${Array.from({length:10},(_,i)=>`<i class="${i<inCard?'on':''}"></i>`).join("")}</div>
+      <p class="muted" style="font-size:14px">${inCard}/10 sellos · ${me.visits} visitas · última: ${me.last}</p>
+      ${me.free>0?`<p class="free">🎁 Tiene ${me.free} café${me.free>1?"s":""} gratis para canjear</p>`:""}
+      <div class="acts">
+        <button class="btn" data-add="1">+1 sello</button>
+        <button class="btn" data-add="2">+2 sellos</button>
+        <button class="btn okb wide" id="redeem" ${me.free>0?"":"disabled"}>Canjear café gratis</button>
+        <button class="btn light wide" id="resX">Hecho</button>
+      </div>`;
+    $("res").querySelectorAll("[data-add]").forEach(b=>b.onclick=async()=>{
+      const n=+b.dataset.add, before=me.free; addStamps(me,n);
+      aviso(me.free>before ? "🎉 ¡Tarjeta completa! Tu próximo café es gratis." : `+${n} sello${n>1?"s":""}. Te faltan ${10-me.stamps%10} para el café gratis.`);
+      render(); renderRes(); toast(`+${n} sello${n>1?"s":""} a Laura`); await save();
+    });
+    $("redeem").onclick=async()=>{ if(me.free<1) return; me.free--; aviso("☕ Café gratis canjeado. ¡Que aproveche!"); render(); renderRes(); toast("Café gratis canjeado"); await save(); };
+    $("resX").onclick=()=>{ $("resOv").hidden=true; };
+  }
+
+  // ===== resto del panel =====
+  $("addStamp").onclick = async()=>{
+    const i=+$("who").value;
+    if (i===0){ const before=me.free; addStamps(me,1); aviso(me.free>before ? "🎉 ¡Tarjeta completa! Tu próximo café es gratis." : `+1 sello. Te faltan ${10-me.stamps%10} para el café gratis.`); render(); toast("Sello sumado a Laura"); await save(); }
+    else { addStamps(others[i-1],1); render(); toast(`Sello sumado a ${others[i-1].name}`); }
+  };
+  $("send").onclick = async()=>{
+    const m=$("msg").value.trim(); if(!m) return toast("Escribe el aviso");
+    aviso(m); render(); toast(`Aviso enviado ${$("seg").selectedOptions[0].textContent.toLowerCase()}`); await save();
+  };
+  const RESET_TXT = "Reiniciar la demo (Laura vuelve a 6 sellos)";
+  let resetArmed = false;
+  $("reset").onclick = async()=>{
+    if (!resetArmed){ resetArmed=true; $("reset").textContent="Pulsa otra vez para reiniciar"; setTimeout(()=>{ resetArmed=false; $("reset").textContent=RESET_TXT; },3000); return; }
+    resetArmed=false; $("reset").textContent=RESET_TXT;
+    me = clone(START); me.avisos=[{ id:Date.now(), m:START.avisos[0].m }]; shown=-1; render(); toast("Demo reiniciada"); await save();
+  };
+  $("wApple").onclick = ()=> toast("En la versión real, la tarjeta queda como una app en tu móvil, sin descargar nada.");
+
+  applyMode(); render();
+
+  // ===== conexión en directo entre los dos enlaces =====
+  let db = null;
+  try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch(e){ db = null; }
+  if (db){
+    ref = db.doc("demo/parapapa");
+    $("live").hidden = false;
+    ref.onSnapshot(snap=>{
+      if (!snap.exists) return;
+      const d = snap.data();
+      const prevStamps = me.stamps, maxId = Math.max(0, ...((d.avisos||[]).map(a=>a.id||0)));
+      me = clone(d); me.avisos = me.avisos || [];
+      if (!firstSnap && !snap.metadata.hasPendingWrites){
+        const nuevos = me.avisos.filter(a=>a.id>lastAviso);
+        if (nuevos.length) pushNote(nuevos[nuevos.length-1].m);
+        else if (me.stamps>prevStamps) pushNote(`+${me.stamps-prevStamps} sello`);
+      }
+      if (me.stamps < prevStamps) shown = -1;
+      lastAviso = Math.max(lastAviso, maxId); firstSnap = false;
+      render(); renderRes();
+    }, ()=>{ $("live").hidden = true; });
+  }
+})();
+</script>
+</body>
+</html>
